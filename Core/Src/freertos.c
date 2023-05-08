@@ -35,6 +35,7 @@ int mode;
 uint8_t rebuf[11];
 int right_encoderB,left_encoderA;
 int right_encoderB_PN,left_encoderA_PN;
+int i=0;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -130,10 +131,12 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
+
   /* Infinite loop */
   for(;;)
   {
-		angle_PWM=PID_angle_out(angle[1]);
+		MPU6050_Data(rebuf);
+		angle_PWM=PID_angle_out(angle[1],w[1]);
 		speed_PWM=PID_speed_out(left_encoderA,right_encoderB,0);
 		PWM=angle_PWM+speed_PWM;
 		if(PWM>=0)
@@ -142,8 +145,8 @@ void StartDefaultTask(void const * argument)
 			HAL_GPIO_WritePin(AIN2_GPIO_Port,AIN2_Pin,GPIO_PIN_SET);
 			HAL_GPIO_WritePin(BIN1_GPIO_Port,BIN1_Pin,GPIO_PIN_RESET);
 			HAL_GPIO_WritePin(BIN2_GPIO_Port,BIN2_Pin,GPIO_PIN_SET);
-			if(PWM>200)
-				PWM=200;
+			if(PWM>1000)
+				PWM=1000;
 		}
 		else
 		{
@@ -151,14 +154,22 @@ void StartDefaultTask(void const * argument)
 			HAL_GPIO_WritePin(AIN2_GPIO_Port,AIN2_Pin,GPIO_PIN_RESET);
 			HAL_GPIO_WritePin(BIN1_GPIO_Port,BIN1_Pin,GPIO_PIN_SET);
 			HAL_GPIO_WritePin(BIN2_GPIO_Port,BIN2_Pin,GPIO_PIN_RESET);
-			if(PWM<-200)
-				PWM=-200;
+			if(PWM<-1000)
+				PWM=-1000;
 		}
 		left_PWMA=fabs(PWM);
 		right_PWMB=fabs(PWM);
 		__HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_1,left_PWMA);
 		__HAL_TIM_SET_COMPARE(&htim3,TIM_CHANNEL_2,right_PWMB);
-  
+		i++;
+		while(i==15)
+		{
+		right_encoderB=__HAL_TIM_GetCounter(&htim1);
+		left_encoderA=__HAL_TIM_GetCounter(&htim2);
+		TIM1->CNT=0;
+		TIM2->CNT=0;
+		i=0;
+		}
     osDelay(1);
 	}
   /* USER CODE END StartDefaultTask */

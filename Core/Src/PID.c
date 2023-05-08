@@ -1,34 +1,24 @@
 #include "PID.h"
-double PID_angle_out(double angle_y)
+static double akp=45.5,akd=1.475,aout,k=-4;
+double PID_angle_out(double angle_y,double w)
 {
-	static double kp=9,kd=0.045,df,out,k=-3.5,last=1;
-	df=(angle_y-k)-last;
-	out=kp*(angle_y-k)+kd*df;
-	last=angle_y-k;
-//	if(out>200)
-//		out=200;
-//	else if(out<-200)
-//		out=-200;
-	return out;
+	aout=akp*(angle_y-k)+akd*w;
+	return aout;
 }
+static double sout,skp=3.755,ski=0.041,esum,esum_last=0,i=0;
 double PID_speed_out(int EA,int EB,double target_speed)
 {
-	static double out,kp=1.7,ki,p,sum,p_speed_last=0,i=0;
-	ki=kp/200;
-	sum=(short)EA+(short)EB;
-	p=sum-target_speed;
-	i=p*0.7+p_speed_last*0.3;
-	if(i>10000)
-		i=10000;
-	else if(i<-10000)
-		i=-10000;
-	p_speed_last=p;
-	out=kp*p+ki*i;
-//	if(out>200)
-//		out=200;
-//	else if(out<-200)
-//		out=-200;
-	return out;
+	esum_last=(short)EA+(short)EB;
+	esum*=0.8;
+	esum+=esum_last*0.2;
+	i+=esum;
+	i=i-target_speed;
+	if(i>5900)
+		i=5900;
+	else if(i<-5900)
+		i=-5900;
+	sout=skp*esum+ski*i;
+	return sout;
 }
 //double PID_turn_out(int EA,int EB,int EA_PN,int EB_PN,double target_turndf)
 //{

@@ -1,6 +1,7 @@
 --cpu=Cortex-M4.fp
 "finaltest\startup_stm32f411xe.o"
 "finaltest\mpu6050.o"
+"finaltest\pid.o"
 "finaltest\main.o"
 "finaltest\gpio.o"
 "finaltest\freertos.o"
@@ -9,7 +10,6 @@
 "finaltest\stm32f4xx_it.o"
 "finaltest\stm32f4xx_hal_msp.o"
 "finaltest\stm32f4xx_hal_timebase_tim.o"
-"finaltest\pid.o"
 "finaltest\stm32f4xx_hal_rcc.o"
 "finaltest\stm32f4xx_hal_rcc_ex.o"
 "finaltest\stm32f4xx_hal_flash.o"
